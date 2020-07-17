@@ -8,6 +8,16 @@ const {
   errorHandler,
 } = require('./utils/middleware/errorHandlers');
 const notFoundHandler = require('./utils/middleware/notFoundHandler');
+const morgan = require('morgan');
+
+// eslint-disable-next-line no-unused-vars
+morgan.token('agent', function (req, res) {
+  return req.headers['user-agent'];
+});
+
+app.use(
+  morgan(':agent :method :url :status :res[content-length] - :response-time ms')
+);
 
 // body parser
 app.use(express.json());
@@ -18,12 +28,10 @@ moviesApi(app);
 //catch 404
 app.use(notFoundHandler);
 
-
 // Errors middleware
 app.use(logErrors);
 app.use(wrapErrors);
 app.use(errorHandler);
-
 
 app.listen(config.port, function () {
   // eslint-disable-next-line no-console
