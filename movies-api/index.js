@@ -1,3 +1,4 @@
+const debug = require('debug')('app:server');
 const express = require('express');
 const app = express();
 const { config } = require('./config/index');
@@ -34,8 +35,7 @@ app.use(wrapErrors);
 app.use(errorHandler);
 
 app.listen(config.port, function () {
-  // eslint-disable-next-line no-console
-  console.log(`Listening http://localhost:${config.port}`);
+  debug(`Listening http://localhost:${config.port}`);
 });
 
 /** LEARNING */

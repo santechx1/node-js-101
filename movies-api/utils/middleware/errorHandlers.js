@@ -1,5 +1,7 @@
 const boom = require('@hapi/boom');
 const { config } = require('../../config');
+const debug = require('debug')('app:error');
+
 
 function withErrorStack(error, stack) {
   if (config.dev) {
@@ -9,8 +11,7 @@ function withErrorStack(error, stack) {
 }
 
 function logErrors(err, req, res, next) {
-  // eslint-disable-next-line no-console
-  console.log(err);
+  debug(err);
   next(err);
 }
 
