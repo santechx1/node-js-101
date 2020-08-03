@@ -19,7 +19,7 @@ passport.use(
           return cb(boom.unauthorized(), false);
         }
         delete user.password;
-        cb(null, { ...user, scopes: tokenPayload });
+        cb(null, { ...user, scopes: tokenPayload.scopes });
       } catch (error) {
         return cb(error);
       }
