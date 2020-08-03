@@ -6,21 +6,23 @@ const UsersService = require('../../../services/users');
 const { config } = require('../../../config/index');
 
 passport.use(
-  new Strategy({
-    secretOrKey: config.authJwtSecret,
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  }),
-  async function (tokenPayload, cb) {
-    const usersService = new UsersService();
-    try {
-      const user = usersService.getUser({ email: tokenPayload.email });
-      if (!user) {
-        return cb(boom.unauthorized(), false);
+  new Strategy(
+    {
+      secretOrKey: config.authJwtSecret,
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    },
+    async function (tokenPayload, cb) {
+      const usersService = new UsersService();
+      try {
+        const user = usersService.getUser({ email: tokenPayload.email });
+        if (!user) {
+          return cb(boom.unauthorized(), false);
+        }
+        delete user.password;
+        cb(null, { ...user, scopes: tokenPayload });
+      } catch (error) {
+        return cb(error);
       }
-      delete user.password;
-      cb(null, { ...user, scopes: tokenPayload });
-    } catch (error) {
-      return cb(error);
     }
-  }
+  )
 );
