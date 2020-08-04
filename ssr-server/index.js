@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const axios = require('axios');
 
 const { config } = require('./config');
+const { use } = require('passport');
 
 const app = express();
 
@@ -14,6 +15,9 @@ app.use(cookieParser());
 
 // Basic Strategy
 require('./utils/auth/strategies/basic');
+
+// OAuth Strategy
+require('./utils/auth/strategies/oauth');
 
 const THIRTY_DAYS_IN_MS = 2592000000;
 const TWO_HOURS_IN_MS = 7200000;
@@ -107,6 +111,32 @@ app.delete('/user-movies/:userMovieId', async function (req, res, next) {
     next(error);
   }
 });
+
+app.get(
+  '/auth/google-oauth',
+  passport.authenticate('google-oauth', {
+    scope: ['email', 'profile', 'openid'],
+  })
+);
+
+app.get(
+  '/auth/google-oauth/callback',
+  passport.authenticate('google-oauth', { session: false }),
+  function (req, res, next) {
+    if (!req.user) {
+      next(boom.unauthorized());
+    }
+
+    const { token, ...user } = req.user;
+
+    res.cookie('token', token, {
+      httpOnly: !config.dev,
+      secure: !config.dev,
+    });
+
+    res.status(200).json(user);
+  }
+);
 
 app.listen(config.port, function () {
   console.log(`Listening on http://localhost:${config.port}`);
